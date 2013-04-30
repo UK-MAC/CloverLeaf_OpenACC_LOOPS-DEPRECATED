@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran cell advection kernel.
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details Performs a second order advective remap using van-Leer limiting
 !>  with directional splitting.
 
@@ -78,33 +78,36 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   REAL(KIND=8) :: sigma,sigmat,sigmav,sigmam,sigma3,sigma4
   REAL(KIND=8) :: diffuw,diffdw,limiter
   REAL(KIND=8), PARAMETER :: one_by_six=1.0_8/6.0_8
+!$ACC DATA &
+!$ACC PRESENT(density1,energy1) &
+!$ACC PRESENT(vol_flux_x,vol_flux_y,volume,mass_flux_x,mass_flux_y,vertexdx,vertexdy) &
+!$ACC PRESENT(pre_vol,post_vol,post_ener,pre_mass,post_mass,advec_vol,ener_flux)
 
-!$OMP PARALLEL
 
   IF(dir.EQ.g_xdir) THEN
 
     IF(sweep_number.EQ.1)THEN
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+(vol_flux_x(j+1,k  )-vol_flux_x(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
           post_vol(j,k)=pre_vol(j,k)-(vol_flux_x(j+1,k  )-vol_flux_x(j,k))
         ENDDO
       ENDDO 
-!$OMP END DO
+!$ACC END PARALLEL LOOP
     ELSE
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+vol_flux_x(j+1,k)-vol_flux_x(j,k)
           post_vol(j,k)=volume(j,k)
         ENDDO
       ENDDO 
-!$OMP END DO
+!$ACC END PARALLEL LOOP
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter)
+!$ACC PARALLEL LOOP PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
+!$ACC                       diffuw,diffdw,limiter)
     DO k=y_min,y_max
       DO j=x_min,x_max+2
 
@@ -151,9 +154,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
     DO k=y_min,y_max
       DO j=x_min,x_max
         pre_mass(j,k)=density1(j,k)*pre_vol(j,k)
@@ -164,32 +167,32 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         energy1(j,k)=post_ener(j,k)
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
   ELSEIF(dir.EQ.g_ydir) THEN
 
     IF(sweep_number.EQ.1)THEN
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+(vol_flux_y(j  ,k+1)-vol_flux_y(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k))
           post_vol(j,k)=pre_vol(j,k)-(vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
         ENDDO
       ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
     ELSE
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
           post_vol(j,k)=volume(j,k)
         ENDDO
       ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter)
+!$ACC PARALLEL LOOP PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
+!$ACC                       diffuw,diffdw,limiter)
     DO k=y_min,y_max+2
       DO j=x_min,x_max
 
@@ -235,9 +238,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
     DO k=y_min,y_max
       DO j=x_min,x_max
         pre_mass(j,k)=density1(j,k)*pre_vol(j,k)
@@ -248,11 +251,11 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         energy1(j,k)=post_ener(j,k)
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
   ENDIF
 
-!$OMP END PARALLEL
+!$ACC END DATA
 
 END SUBROUTINE advec_cell_kernel
 

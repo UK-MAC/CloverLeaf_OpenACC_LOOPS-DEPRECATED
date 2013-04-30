@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran field summary kernel
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details The total mass, internal energy, kinetic energy and volume weighted
 !>  pressure for the chunk is calculated.
 
@@ -51,8 +51,10 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
   ke=0.0
   press=0.0
 
-!$OMP PARALLEL
-!$OMP DO PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
+!$ACC DATA &
+!$ACC PRESENT(volume,density0,energy0,pressure,xvel0,yvel0) &
+!$ACC COPY(vol,mass,ie,ke,press)
+!$ACC PARALLEL LOOP PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
   DO k=y_min,y_max
     DO j=x_min,x_max
       vsqrd=0.0
@@ -70,8 +72,8 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
       press=press+cell_vol*pressure(j,k)
     ENDDO
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END PARALLEL LOOP
+!$ACC END DATA
 
 END SUBROUTINE field_summary_kernel
 

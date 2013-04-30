@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran PdV kernel.
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details Calculates the change in energy and density in a cell using the
 !>  change on cell volume due to the velocity gradients in a cell. The time
 !>  level of the velocity data depends on whether it is invoked as the
@@ -63,13 +63,18 @@ SUBROUTINE PdV_kernel(predict,                                          &
   REAL(KIND=8)  :: recip_volume,energy_change,min_cell_volume
   REAL(KIND=8)  :: right_flux,left_flux,top_flux,bottom_flux,total_flux
 
-!$omp PARALLEL
+!$ACC DATA &
+!$ACC PRESENT(density0,energy0,pressure,viscosity,volume,xarea,xvel0,yarea,yvel0) &
+!$ACC PRESENT(xvel1,yvel1) &
+!$ACC PRESENT(density1,energy1) &
+!$ACC PRESENT(volume_change)
 
   IF(predict)THEN
 
-!$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
-!$OMP            energy_change,recip_volume)
+!$ACC PARALLEL LOOP PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
+!$ACC                       energy_change,recip_volume) VECTOR_LENGTH(1024)
     DO k=y_min,y_max
+!$ACC LOOP VECTOR
       DO j=x_min,x_max
 
         left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &
@@ -98,13 +103,14 @@ SUBROUTINE PdV_kernel(predict,                                          &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
   ELSE
 
-!$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
-!$OMP            energy_change,recip_volume)
+!$ACC PARALLEL LOOP PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
+!$ACC                       energy_change,recip_volume) VECTOR_LENGTH(1024)
     DO k=y_min,y_max
+!$ACC LOOP VECTOR
       DO j=x_min,x_max
 
         left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &
@@ -133,11 +139,11 @@ SUBROUTINE PdV_kernel(predict,                                          &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
   ENDIF
 
-!$omp END PARALLEL
+!$ACC END DATA
 
 END SUBROUTINE PdV_kernel
 

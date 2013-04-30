@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran ideal gas kernel.
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details Calculates the pressure and sound speed for the mesh chunk using
 !>  the ideal gas equation of state, with a fixed gamma of 1.4.
 
@@ -42,8 +42,9 @@ SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
 
   REAL(KIND=8) :: sound_speed_squared,v,pressurebyenergy,pressurebyvolume
 
-!$OMP PARALLEL
-!$OMP DO PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared)
+!$ACC DATA &
+!$ACC PRESENT(density,energy,pressure,soundspeed)
+!$ACC PARALLEL LOOP PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared) VECTOR_LENGTH(1024)
   DO k=y_min,y_max
     DO j=x_min,x_max
       v=1.0_8/density(j,k)
@@ -54,8 +55,8 @@ SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
       soundspeed(j,k)=SQRT(sound_speed_squared)
     ENDDO
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END PARALLEL LOOP
+!$ACC END DATA
 
 END SUBROUTINE ideal_gas_kernel
 

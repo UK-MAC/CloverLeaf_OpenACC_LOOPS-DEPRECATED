@@ -24,7 +24,7 @@
 !>  Note the reference solution is the value returned from an Intel compiler with
 !>  ieee options set on a single core crun.
 
-SUBROUTINE field_summary()
+SUBROUTINE field_summary(c)
 
   USE clover_module
   USE ideal_gas_module
@@ -35,7 +35,6 @@ SUBROUTINE field_summary()
   REAL(KIND=8) :: vol,mass,ie,ke,press
   REAL(KIND=8) :: qa_diff
 
-!$ INTEGER :: OMP_GET_THREAD_NUM
 
   INTEGER      :: c
 
@@ -48,44 +47,35 @@ SUBROUTINE field_summary()
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
     CALL ideal_gas(c,.FALSE.)
-  ENDDO
+  IF(profiler_on) kernel_time=timer()
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   IF(use_fortran_kernels)THEN
-    DO c=1,number_of_chunks
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel(chunks(c)%field%x_min,                   &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-      ENDIF
-    ENDDO
+    CALL field_summary_kernel(chunks(c)%field%x_min,                   &
+                              chunks(c)%field%x_max,                   &
+                              chunks(c)%field%y_min,                   &
+                              chunks(c)%field%y_max,                   &
+                              chunks(c)%field%volume,                  &
+                              chunks(c)%field%density0,                &
+                              chunks(c)%field%energy0,                 &
+                              chunks(c)%field%pressure,                &
+                              chunks(c)%field%xvel0,                   &
+                              chunks(c)%field%yvel0,                   &
+                              vol,mass,ie,ke,press                     )
   ELSEIF(use_C_kernels)THEN
-    DO c=1,number_of_chunks
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-      ENDIF
-    ENDDO
+      CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
+                                chunks(c)%field%x_max,                   &
+                                chunks(c)%field%y_min,                   &
+                                chunks(c)%field%y_max,                   &
+                                chunks(c)%field%volume,                  &
+                                chunks(c)%field%density0,                &
+                                chunks(c)%field%energy0,                 &
+                                chunks(c)%field%pressure,                &
+                                chunks(c)%field%xvel0,                   &
+                                chunks(c)%field%yvel0,                   &
+                                vol,mass,ie,ke,press                     )
   ENDIF
 
   ! For mpi I need a reduction here
@@ -97,16 +87,13 @@ SUBROUTINE field_summary()
   IF(profiler_on) profiler%summary=profiler%summary+(timer()-kernel_time)
 
   IF(parallel%boss) THEN
-!$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,'(a6,i7,7e16.4)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
       WRITE(g_out,*)
-!$  ENDIF
    ENDIF
 
   !Check if this is the final call and if it is a test problem, check the result.
   IF(complete) THEN
     IF(parallel%boss) THEN
-!$    IF(OMP_GET_THREAD_NUM().EQ.0) THEN
         IF(test_problem.EQ.1) THEN
           qa_diff=ABS((100.0_8*(ke/1.82280367310258_8))-100.0_8)
           WRITE(*,*)"Test problem 1 is within",qa_diff,"% of the expected solution"
@@ -119,7 +106,6 @@ SUBROUTINE field_summary()
             WRITE(g_out,*)"This is test is considered NOT PASSED"
           ENDIF
         ENDIF
-!$    ENDIF
     ENDIF
   ENDIF
 

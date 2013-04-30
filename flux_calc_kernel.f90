@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran flux kernel.
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details The edge volume fluxes are calculated based on the velocity fields.
 
 MODULE flux_calc_kernel_module
@@ -46,27 +46,28 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
 
   INTEGER :: j,k
 
-!$OMP PARALLEL
+!$ACC DATA &
+!$ACC PRESENT(xvel0,yvel0,xvel1,yvel1,xarea,yarea,vol_flux_x,vol_flux_y)
 
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
   DO k=y_min,y_max
     DO j=x_min,x_max+1 
-      vol_flux_x(j,k)=0.25*dt*xarea(j,k)                  &
+      vol_flux_x(j,k)=0.25_8*dt*xarea(j,k)                  &
                      *(xvel0(j,k)+xvel0(j,k+1)+xvel1(j,k)+xvel1(j,k+1))
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
+!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max
-      vol_flux_y(j,k)=0.25*dt*yarea(j,k)                  &
+      vol_flux_y(j,k)=0.25_8*dt*yarea(j,k)                  &
                      *(yvel0(j,k)+yvel0(j+1,k)+yvel1(j,k)+yvel1(j+1,k))
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP END PARALLEL
+!$ACC END DATA
 
 END SUBROUTINE flux_calc_kernel
 

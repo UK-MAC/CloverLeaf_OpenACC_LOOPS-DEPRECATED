@@ -46,11 +46,9 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-#pragma omp parallel
  {
 
   if(chunk_left!=external_face) {
-#pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
 #pragma ivdep
       for (j=1;j<=depth;j++) {
@@ -60,7 +58,6 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     }
   }
   if(chunk_right!=external_face) {
-#pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
 #pragma ivdep
       for (j=1;j<=depth;j++) {
@@ -94,11 +91,9 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-#pragma omp parallel
  {
 
   if(chunk_left!=external_face) {
-#pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
 #pragma ivdep
       for (j=1;j<=depth;j++) {
@@ -108,7 +103,6 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     }
   }
   if(chunk_right!=external_face) {
-#pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
 #pragma ivdep
       for (j=1;j<=depth;j++) {
@@ -142,12 +136,10 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {
     for (k=1;k<=depth;k++) {
-#pragma omp for private(j,index)
       for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
         index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
         bottom_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(j,y_min+y_inc-1+k,x_max+4+x_inc,x_min-2,y_min-2)];
@@ -156,7 +148,6 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   }
   if(chunk_top!=external_face) {
     for (k=1;k<=depth;k++) {
-#pragma omp for private(j,index)
       for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
         index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
         top_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(j,y_max+1-k,x_max+4+x_inc,x_min-2,y_min-2)];
@@ -188,12 +179,10 @@ void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {
     for (k=1;k<=depth;k++) {
-#pragma omp for private(j,index)
       for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
         index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
         field[FTNREF2D(j,y_min-k,x_max+4+x_inc,x_min-2,y_min-2)]=bottom_rcv_buffer[FTNREF1D(index,1)];
@@ -202,7 +191,6 @@ void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   }
   if(chunk_top!=external_face) {
     for (k=1;k<=depth;k++) {
-#pragma omp for private(j,index)
       for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
         index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
         field[FTNREF2D(j,y_max+y_inc+k,x_max+4+x_inc,x_min-2,y_min-2)]=top_rcv_buffer[FTNREF1D(index,1)];

@@ -16,7 +16,7 @@
 ! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran acceleration kernel
-!>  @author Wayne Gaudin
+!>  @author Wayne Gaudin, Andy Herdman
 !>  @details The pressure and viscosity gradients are used to update the 
 !>  velocity field.
 
@@ -54,9 +54,12 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
   INTEGER               :: j,k
   REAL(KIND=8)          :: nodal_mass
 
-!$OMP PARALLEL
+!$ACC DATA &
+!$ACC PRESENT(density0,volume,pressure,viscosity,xarea,yarea,xvel0,yvel0)&
+!$ACC PRESENT(xvel1,yvel1)   &
+!$ACC PRESENT(stepbymass)
 
-!$OMP DO PRIVATE(nodal_mass)
+!$ACC PARALLEL LOOP PRIVATE(nodal_mass) VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max+1
 
@@ -70,9 +73,9 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
+!$ACC PARALLEL LOOP ASYNC(1) VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max+1
 
@@ -80,10 +83,10 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
                                             +xarea(j  ,k-1)*(pressure(j  ,k-1)-pressure(j-1,k-1)))
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
-  DO k=y_min,y_max+1
+!$ACC PARALLEL LOOP ASYNC(2) VECTOR_LENGTH(1024)
+  DO k=y_min,y_max+1 
     DO j=x_min,x_max+1
 
       yvel1(j,k)=yvel0(j,k)-stepbymass(j,k)*(yarea(j  ,k  )*(pressure(j  ,k  )-pressure(j  ,k-1))    &
@@ -91,9 +94,9 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
 
-!$OMP DO
+!$ACC PARALLEL LOOP ASYNC(1) VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max+1
 
@@ -102,9 +105,9 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
-
-!$OMP DO
+!$ACC END PARALLEL LOOP
+ 
+!$ACC PARALLEL LOOP ASYNC(2) VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max+1
 
@@ -113,9 +116,10 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$ACC END PARALLEL LOOP
+!$ACC WAIT
 
-!$OMP END PARALLEL
+!$ACC END DATA
 
 END SUBROUTINE accelerate_kernel
 
