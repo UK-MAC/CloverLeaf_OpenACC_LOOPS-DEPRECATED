@@ -86,7 +86,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 !$ACC END PARALLEL LOOP
 
 !$ACC PARALLEL LOOP ASYNC(2) VECTOR_LENGTH(1024)
-  DO k=y_min,y_max+1 
+  DO k=y_min,y_max+1
     DO j=x_min,x_max+1
 
       yvel1(j,k)=yvel0(j,k)-stepbymass(j,k)*(yarea(j  ,k  )*(pressure(j  ,k  )-pressure(j  ,k-1))    &
@@ -106,7 +106,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
     ENDDO
   ENDDO
 !$ACC END PARALLEL LOOP
- 
+
 !$ACC PARALLEL LOOP ASYNC(2) VECTOR_LENGTH(1024)
   DO k=y_min,y_max+1
     DO j=x_min,x_max+1

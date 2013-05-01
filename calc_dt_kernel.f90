@@ -83,11 +83,9 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 
   REAL(KIND=8)     :: div,dsx,dsy,dtut,dtvt,dtct,dtdivt,cc,dv1,dv2,jk_control
 
-
   small=0
 !$ACC DATA    &
 !$ACC PRESENT(celldx,celldy,cellx,celly,density0,soundspeed,viscosity,volume,xarea,xvel0,yarea,yvel0,dt_min)
-
   dt_min_val = g_big
   jk_control=1.1
 
