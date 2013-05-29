@@ -30,7 +30,6 @@ SUBROUTINE advec_cell_kernel(x_min,       &
                              y_max,       &
                              dir,         &
                              sweep_number,&
-                             vector,      &
                              vertexdx,    &
                              vertexdy,    &
                              volume,      &
