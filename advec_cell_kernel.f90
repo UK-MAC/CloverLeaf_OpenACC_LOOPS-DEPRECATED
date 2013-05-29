@@ -53,7 +53,6 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: sweep_number,dir
   INTEGER :: g_xdir=1,g_ydir=2
-  LOGICAL :: vector
 
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: volume
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: density1
