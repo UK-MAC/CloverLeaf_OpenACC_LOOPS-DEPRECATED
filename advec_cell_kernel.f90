@@ -75,7 +75,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
   REAL(KIND=8) :: sigma,sigmat,sigmav,sigmam,sigma3,sigma4
   REAL(KIND=8) :: diffuw,diffdw,limiter
-  REAL(KIND=8), PARAMETER :: one_by_six=1.0_8/6.0_8
+  REAL(KIND=8) :: one_by_six=1.0_8/6.0_8
 !$ACC DATA &
 !$ACC PRESENT(density1,energy1) &
 !$ACC PRESENT(vol_flux_x,vol_flux_y,volume,mass_flux_x,mass_flux_y,vertexdx,vertexdy) &

@@ -227,7 +227,7 @@ CONTAINS
 !$ACC END PARALLEL LOOP
     ENDIF
     IF(chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) THEN
-!$ACC PARALLEL LOOP !COLLAPSE(2)
+!$ACC PARALLEL LOOP
       DO k=y_min-depth,y_max+depth
         DO j=1,depth
           energy1(1-j,k)=energy1(0+j,k)
@@ -236,7 +236,7 @@ CONTAINS
 !$ACC END PARALLEL LOOP
     ENDIF
     IF(chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) THEN
-!$ACC PARALLEL LOOP !COLLAPSE(2)
+!$ACC PARALLEL LOOP
       DO k=y_min-depth,y_max+depth
         DO j=1,depth
           energy1(x_max+j,k)=energy1(x_max+1-j,k)
@@ -275,7 +275,7 @@ CONTAINS
 !$ACC END PARALLEL LOOP
     ENDIF
     IF(chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) THEN
-!$ACC PARALLEL LOOP !COLLAPSE(2)
+!$ACC PARALLEL LOOP
       DO k=y_min-depth,y_max+depth
         DO j=1,depth
           pressure(x_max+j,k)=pressure(x_max+1-j,k)
