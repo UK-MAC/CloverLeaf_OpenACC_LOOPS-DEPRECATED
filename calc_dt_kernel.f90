@@ -41,7 +41,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
                           density0,                            &
                           energy0,                             &
                           pressure,                            &
-                          viscosity_a,                           &
+                          viscosity_a,                         &
                           soundspeed,                          &
                           xvel0,yvel0,                         &
                           dt_min,                              &
@@ -98,8 +98,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 
        cc=soundspeed(j,k)*soundspeed(j,k)
        cc=cc+2.0_8*viscosity_a(j,k)/density0(j,k)
-       !cc=MAX(cc,g_small) ! Still causes a seg fault
-       cc=MAX(cc,1.0e-16_8)
+       cc=MAX(cc,g_small)
        cc=SQRT(cc)
 
        dtct=dtc_safe*MIN(dsx,dsy)/cc

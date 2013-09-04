@@ -45,7 +45,7 @@ SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,    &
 
   INTEGER       :: j,k
   REAL(KIND=8)  :: ugrad,vgrad,grad2,pgradx,pgrady,pgradx2,pgrady2,grad     &
-                  ,ygrad,pgrad,xgrad,div,strain2,limiter
+                  ,ygrad,pgrad,xgrad,div,strain2,limiter,dirx,diry
 
 !$ACC DATA &
 !$ACC PRESENT(celldx,celldy,density0,pressure,xvel0,yvel0,viscosity)
