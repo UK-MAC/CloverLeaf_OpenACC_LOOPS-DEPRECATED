@@ -98,8 +98,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 
        cc=soundspeed(j,k)*soundspeed(j,k)
        cc=cc+2.0_8*viscosity_a(j,k)/density0(j,k)
-       cc=MAX(cc,g_small)
-       cc=SQRT(cc)
+       cc=MAX(SQRT(cc),g_small)
 
        dtct=dtc_safe*MIN(dsx,dsy)/cc
 
