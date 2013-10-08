@@ -56,6 +56,7 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
 !$ACC COPY(vol,mass,ie,ke,press)
 !$ACC PARALLEL LOOP PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
   DO k=y_min,y_max
+!$ACC LOOP VECTOR
     DO j=x_min,x_max
       vsqrd=0.0
       DO kv=k,k+1
