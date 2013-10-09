@@ -74,7 +74,6 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
       press=press+cell_vol*pressure(j,k)
     ENDDO
   ENDDO
-!$ACC END LOOP
 !$ACC END PARALLEL
 !$ACC END DATA
 
