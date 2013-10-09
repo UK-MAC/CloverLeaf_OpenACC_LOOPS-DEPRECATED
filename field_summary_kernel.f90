@@ -54,16 +54,14 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
 !$ACC DATA &
 !$ACC PRESENT(volume,density0,energy0,pressure,xvel0,yvel0) &
 !$ACC COPY(vol,mass,ie,ke,press)
-!$ACC PARALLEL LOOP PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
+!$ACC PARALLEL
+!$ACC LOOP PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke) GANG
   DO k=y_min,y_max
-!$ACC LOOP VECTOR
     DO j=x_min,x_max
-      vsqrd=0.0
-      DO kv=k,k+1
-        DO jv=j,j+1
-          vsqrd=vsqrd+0.25*(xvel0(jv,kv)**2+yvel0(jv,kv)**2)
-        ENDDO
-      ENDDO
+      vsqrd=0.25*(xvel0(j  ,k  )**2+yvel0(j  ,k  )**2)+ &
+            0.25*(xvel0(j+1,k  )**2+yvel0(j+1,k  )**2)+ &
+            0.25*(xvel0(j  ,k+1)**2+yvel0(j  ,k+1)**2)+ &
+            0.25*(xvel0(j+1,k+1)**2+yvel0(j+1,k+1)**2)
       cell_vol=volume(j,k)
       cell_mass=cell_vol*density0(j,k)
       vol=vol+cell_vol
@@ -73,7 +71,7 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
       press=press+cell_vol*pressure(j,k)
     ENDDO
   ENDDO
-!$ACC END PARALLEL LOOP
+!$ACC END PARALLEL
 !$ACC END DATA
 
 END SUBROUTINE field_summary_kernel
