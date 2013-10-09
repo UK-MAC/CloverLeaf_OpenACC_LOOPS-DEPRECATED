@@ -161,7 +161,8 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
 
-!$ACC PARALLEL LOOP PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind) VECTOR_LENGTH(1024)
+!$ACC PARALLEL VECTOR_LENGTH(1024)
+!$ACC LOOP PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind) GANG
     DO k=y_min,y_max+1
 !$ACC LOOP VECTOR
       DO j=x_min-1,x_max+1
@@ -192,7 +193,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
         mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
       ENDDO
     ENDDO
-!$ACC END PARALLEL LOOP
+!$ACC END PARALLEL
 !$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
     DO k=y_min,y_max+1
       DO j=x_min,x_max+1
