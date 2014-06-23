@@ -42,7 +42,6 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
-  int size=*sz;
 
   int j,k,index;
 
@@ -87,7 +86,6 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
-  int size=*sz;
 
   int j,k,index;
 
@@ -132,7 +130,6 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
-  int size=*sz;
 
   int j,k,index;
 
@@ -175,7 +172,6 @@ void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
-  int size=*sz;
 
   int j,k,index;
 

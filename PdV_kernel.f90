@@ -74,7 +74,6 @@ SUBROUTINE PdV_kernel(predict,                                          &
 !$ACC PARALLEL LOOP PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
 !$ACC                       energy_change,recip_volume) VECTOR_LENGTH(1024)
     DO k=y_min,y_max
-!$ACC LOOP VECTOR
       DO j=x_min,x_max
 
         left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &
@@ -110,7 +109,6 @@ SUBROUTINE PdV_kernel(predict,                                          &
 !$ACC PARALLEL LOOP PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
 !$ACC                       energy_change,recip_volume) VECTOR_LENGTH(1024)
     DO k=y_min,y_max
-!$ACC LOOP VECTOR
       DO j=x_min,x_max
 
         left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &
