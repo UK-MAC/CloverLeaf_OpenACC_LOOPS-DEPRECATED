@@ -121,7 +121,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
   ELSEIF(mom_sweep.EQ.4)THEN ! y 2
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-2,y_max+2
       DO j=x_min-2,x_max+2
         post_vol(j,k)=volume(j,k)
@@ -211,7 +211,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL LOOP
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-1,y_max+2
       DO j=x_min,x_max+1
         node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                     &
