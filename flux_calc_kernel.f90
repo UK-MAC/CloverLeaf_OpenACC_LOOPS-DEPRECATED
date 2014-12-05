@@ -23,7 +23,7 @@ MODULE flux_calc_kernel_module
 
 CONTAINS
 
-SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
+SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,      &
                             xarea,                           &
                             yarea,                           &
                             xvel0,                           &
@@ -49,7 +49,7 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
 !$ACC DATA &
 !$ACC PRESENT(xvel0,yvel0,xvel1,yvel1,xarea,yarea,vol_flux_x,vol_flux_y)
 
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
   DO k=y_min,y_max
     DO j=x_min,x_max+1 
       vol_flux_x(j,k)=0.25_8*dt*xarea(j,k)                  &
@@ -58,7 +58,7 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
   ENDDO
 !$ACC END PARALLEL LOOP
 
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
   DO k=y_min,y_max+1
     DO j=x_min,x_max
       vol_flux_y(j,k)=0.25_8*dt*yarea(j,k)                  &
