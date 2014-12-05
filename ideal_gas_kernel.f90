@@ -44,7 +44,7 @@ SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
 
 !$ACC DATA &
 !$ACC PRESENT(density,energy,pressure,soundspeed)
-!$ACC PARALLEL LOOP PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared) VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared)
   DO k=y_min,y_max
     DO j=x_min,x_max
       v=1.0_8/density(j,k)
