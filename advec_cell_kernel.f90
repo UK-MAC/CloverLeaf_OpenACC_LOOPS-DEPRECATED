@@ -94,7 +94,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
       ENDDO 
 !$ACC END PARALLEL LOOP
     ELSE
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+vol_flux_x(j+1,k)-vol_flux_x(j,k)
