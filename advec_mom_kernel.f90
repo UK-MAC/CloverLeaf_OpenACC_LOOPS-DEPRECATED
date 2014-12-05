@@ -94,7 +94,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
 !$ACC PRESENT(mom_flux,advec_vel,node_flux,node_mass_post,node_mass_pre,post_vol,pre_vol)
 
   IF(mom_sweep.EQ.1)THEN ! x 1
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-2,y_max+2
       DO j=x_min-2,x_max+2
         post_vol(j,k)= volume(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
@@ -103,7 +103,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
   ELSEIF(mom_sweep.EQ.2)THEN ! y 1
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-2,y_max+2
       DO j=x_min-2,x_max+2
         post_vol(j,k)= volume(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k)
@@ -112,7 +112,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
   ELSEIF(mom_sweep.EQ.3)THEN ! x 2
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-2,y_max+2
       DO j=x_min-2,x_max+2
         post_vol(j,k)=volume(j,k)
@@ -132,7 +132,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   ENDIF
 
   IF(direction.EQ.1)THEN
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min,y_max+1
       DO j=x_min-2,x_max+2
         ! Find staggered mesh mass fluxes, nodal masses and volumes.
@@ -141,7 +141,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL LOOP
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min,y_max+1
       DO j=x_min-1,x_max+2
         ! Staggered cell mass post advection
@@ -152,7 +152,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL LOOP 
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)    
+!$ACC PARALLEL LOOP
     DO k=y_min,y_max+1
       DO j=x_min-1,x_max+2
         ! Stagered cell mass pre advection
@@ -161,7 +161,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
 
-!$ACC PARALLEL VECTOR_LENGTH(1024)
+!$ACC PARALLEL
 !$ACC LOOP PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind) GANG
     DO k=y_min,y_max+1
 !$ACC LOOP VECTOR
@@ -194,7 +194,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min,y_max+1
       DO j=x_min,x_max+1
         vel1 (j,k)=(vel1 (j,k)*node_mass_pre(j,k)+mom_flux(j-1,k)-mom_flux(j,k))/node_mass_post(j,k)
@@ -202,7 +202,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$ACC END PARALLEL LOOP
   ELSEIF(direction.EQ.2)THEN
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-2,y_max+2
       DO j=x_min,x_max+1
         ! Find staggered mesh mass fluxes and nodal masses and volumes.
@@ -221,7 +221,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL LOOP
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min-1,y_max+2
       DO j=x_min,x_max+1
         node_mass_pre(j,k)=node_mass_post(j,k)-node_flux(j,k-1)+node_flux(j,k)
@@ -260,7 +260,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$ACC END PARALLEL LOOP
-!$ACC PARALLEL LOOP VECTOR_LENGTH(1024)
+!$ACC PARALLEL LOOP
     DO k=y_min,y_max+1
       DO j=x_min,x_max+1
         vel1 (j,k)=(vel1(j,k)*node_mass_pre(j,k)+mom_flux(j,k-1)-mom_flux(j,k))/node_mass_post(j,k)
